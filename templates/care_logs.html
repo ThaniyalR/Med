@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Care Logs | Nutrix{% endblock %}
+{% block breadcrumb %}Care Logs{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <span class="eyebrow">Patient wellbeing</span>
+    <h1>Daily care logs</h1>
+    <p>Capture observations and keep a helpful record of day-to-day care.</p>
+</div>
+
+<div class="page-grid">
+<section class="panel">
+    <h3>Add a care note</h3>
+
+    {% if patients %}
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label>Select patient *</label>
+        <select name="patient_id" required>
+            <option value="">Choose a patient</option>
+            {% for patient in patients %}
+            <option value="{{ patient.id }}">
+                {{ patient.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <label>Care note *</label>
+        <textarea
+            name="note"
+            placeholder="Enter the care activity or observation"
+            required></textarea>
+
+        <button type="submit">Save Care Log</button>
+    </form>
+    {% else %}
+    <div class="empty-state">Add a patient before creating a care log.</div>
+    {% endif %}
+</section>
+
+<section class="panel">
+    <h3>Previous care notes</h3>
+
+    {% if logs %}
+        {% for log in logs %}
+        <div class="log-entry">
+            <h4>{{ log.patient_name }}</h4>
+            <p>{{ log.note }}</p>
+            <small>{{ log.log_date }}</small>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="empty-state">No care notes recorded yet.</div>
+    {% endif %}
+</section>
+</div>
+{% endblock %}

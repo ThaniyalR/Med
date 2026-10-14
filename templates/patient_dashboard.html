@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}My care | Nutrix{% endblock %}
+{% block breadcrumb %}My care{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <span class="eyebrow">Patient workspace</span>
+    <h1>Welcome, {{ patient.name }}</h1>
+    <p>Find verified professionals, share the support you need, and manage appointment requests.</p>
+</div>
+
+{% if current_user.verification_status != 'approved' %}
+<section class="verification-banner {{ current_user.verification_status }}">
+    <div>
+        <strong>Account verification: {{ current_user.verification_status|title }}</strong>
+        <p>
+            {% if current_user.verification_status == 'rejected' and current_user.review_note %}
+            Review note: {{ current_user.review_note }}
+            {% else %}
+            You can explore the care team. Your identity must be approved before you post requests or book a visit.
+            {% endif %}
+        </p>
+    </div>
+    {% if current_user.verification_status == 'rejected' %}
+    <form method="POST" action="{{ url_for('resubmit_verification') }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label for="credential">Upload a new identity document</label>
+        <input id="credential" type="file" name="credential" accept=".pdf,.jpg,.jpeg,.png" required>
+        <button type="submit">Resubmit for review</button>
+    </form>
+    {% endif %}
+</section>
+{% endif %}
+
+<div class="page-grid">
+    <section class="panel">
+        <h2>Post a care request</h2>
+        {% if current_user.verification_status == 'approved' %}
+        <form method="POST" action="{{ url_for('create_care_request') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label for="summary">What support do you need? *</label>
+            <textarea id="summary" name="summary" maxlength="1000" required placeholder="Share care needs, but avoid including sensitive medical details"></textarea>
+            <label for="request-city">City *</label>
+            <input id="request-city" type="text" name="city" maxlength="100" value="{{ patient.city or '' }}" required>
+            <label for="schedule">Preferred schedule *</label>
+            <input id="schedule" type="text" name="schedule" maxlength="200" required placeholder="For example, weekday mornings">
+            <button type="submit">Post care request</button>
+        </form>
+        {% else %}
+        <div class="empty-state">Your account needs approval before posting care requests.</div>
+        {% endif %}
+        {% if requests %}
+        <div class="section-heading"><h3>Your requests</h3></div>
+        {% for care_request in requests %}
+        <article class="request-card">
+            <div class="request-card-heading">
+                <strong>{{ care_request.city }} <span class="request-status">{{ care_request.status }}</span></strong>
+                <small>{{ care_request.created_at }}</small>
+            </div>
+            <p>{{ care_request.summary }}</p>
+            <small>Preferred schedule: {{ care_request.schedule }}</small>
+            {% if care_request.status == 'Open' %}
+            <form method="POST" action="{{ url_for('close_care_request', request_id=care_request.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="button-secondary">Close request</button>
+            </form>
+            {% endif %}
+        </article>
+        {% endfor %}
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <div class="section-heading">
+            <h2>Find a verified professional</h2>
+            <span>{{ caregivers|length }} available</span>
+        </div>
+        <form method="GET" class="search-form">
+            <label class="visually-hidden" for="caregiver-search">Search name, profession or city</label>
+            <input id="caregiver-search" type="search" name="q" value="{{ query }}" placeholder="Search name, profession or city">
+            <label class="visually-hidden" for="role-filter">Profession</label>
+            <select id="role-filter" name="role">
+                <option value="">All professions</option>
+                {% for role in ['Nurse', 'Caretaker', 'Physiotherapist'] %}
+                <option value="{{ role }}" {% if role_filter == role %}selected{% endif %}>{{ role }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Search</button>
+        </form>
+        {% if caregivers %}
+            {% for caregiver in caregivers %}
+            <article class="provider-card">
+                <div class="provider-heading">
+                    <span class="provider-avatar">{{ caregiver.name[:1]|upper }}</span>
+                    <div>
+                        <strong>{{ caregiver.name }} <span class="verified-label">&#10003; Verified</span></strong>
+                        <span>{{ caregiver.role }} · {{ caregiver.city }}</span>
+                    </div>
+                </div>
+                <p>{{ caregiver.bio or 'Experienced care professional.' }}</p>
+                <div class="provider-meta">{{ caregiver.experience }} years experience</div>
+                {% if current_user.verification_status == 'approved' %}
+                <form method="POST" action="{{ url_for('request_booking', caregiver_id=caregiver.id) }}" class="booking-request-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <label for="date-{{ caregiver.id }}">Request a visit</label>
+                    <div class="booking-fields">
+                        <input id="date-{{ caregiver.id }}" type="date" name="date" required>
+                        <input type="time" name="time" aria-label="Appointment time" required>
+                        <button type="submit">Request</button>
+                    </div>
+                </form>
+                {% endif %}
+            </article>
+            {% endfor %}
+        {% else %}
+        <div class="empty-state">No verified professionals match your search yet. Try another profession or city.</div>
+        {% endif %}
+    </section>
+</div>
+
+<section class="panel">
+    <div class="section-heading"><h2>Your appointments</h2><span>{{ bookings|length }} total</span></div>
+    {% if bookings %}
+    <div class="table-wrapper">
+        <table>
+            <thead><tr><th>Caregiver</th><th>Profession</th><th>Date</th><th>Time</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td>{{ booking.caregiver_name }}</td><td>{{ booking.caregiver_role }}</td>
+                <td>{{ booking.date }}</td><td>{{ booking.time }}</td><td>{{ booking.status }}</td>
+                <td>
+                    {% if booking.status in ['Pending', 'Confirmed'] %}
+                    <form method="POST" action="{{ url_for('update_my_booking', booking_id=booking.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <input type="hidden" name="status" value="Cancelled">
+                        <button type="submit" class="button-secondary">Cancel</button>
+                    </form>
+                    {% else %}—{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">No appointments yet. Browse the verified care team above.</div>
+    {% endif %}
+</section>
+{% endblock %}

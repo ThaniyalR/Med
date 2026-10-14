@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Account verification | Nutrix{% endblock %}
+{% block breadcrumb %}Verification review{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <span class="eyebrow">Administrator</span>
+    <h1>Account verification</h1>
+    <p>Review identity and professional documents before accounts can connect with other users.</p>
+</div>
+<div class="filter-tabs" aria-label="Filter verification status">
+    {% for filter_status in ['pending', 'approved', 'rejected'] %}
+    <a href="{{ url_for('admin_verifications', status=filter_status) }}"
+       class="{% if status == filter_status %}active{% endif %}">
+        {{ filter_status|title }}
+    </a>
+    {% endfor %}
+</div>
+{% if users %}
+<div class="verification-list">
+    {% for user in users %}
+    <section class="panel verification-card">
+        <div class="verification-card-heading">
+            <div>
+                <span class="eyebrow">{{ user.role|title }} account</span>
+                <h2>{{ user.name }}</h2>
+                <p>{{ user.email }} · Submitted {{ user.created_at }}</p>
+            </div>
+            <span class="verification-badge {{ user.verification_status }}">{{ user.verification_status|title }}</span>
+        </div>
+        {% if user.review_note %}<p class="review-note"><strong>Review note:</strong> {{ user.review_note }}</p>{% endif %}
+        <a class="document-link" href="{{ url_for('verification_document', user_id=user.id) }}">Download submitted document <span aria-hidden="true">&darr;</span></a>
+        {% if status == 'pending' %}
+        <form method="POST" action="{{ url_for('review_verification', user_id=user.id) }}" class="review-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label for="note-{{ user.id }}">Review note (required to reject)</label>
+            <input id="note-{{ user.id }}" type="text" name="review_note" maxlength="500" placeholder="Explain any issue with the submitted document">
+            <div class="inline-actions">
+                <button type="submit" name="status" value="approved">Approve account</button>
+                <button type="submit" name="status" value="rejected" class="button-danger">Reject</button>
+            </div>
+        </form>
+        {% endif %}
+    </section>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">No {{ status }} accounts to show.</div>
+{% endif %}
+{% endblock %}

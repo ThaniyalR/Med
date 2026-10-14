@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Patients | Nutrix{% endblock %}
+{% block breadcrumb %}Patients{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <span class="eyebrow">People</span>
+    <h1>Patient records</h1>
+    <p>Keep patient details and care needs organized in one place.</p>
+</div>
+
+<div class="page-grid">
+<section class="panel">
+    <h3>Add a patient</h3>
+
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label>Patient name *</label>
+        <input type="text" name="name" required>
+
+        <label>Age</label>
+        <input type="number" name="age" min="0" max="130">
+
+        <label>Condition or care needs</label>
+        <input type="text" name="condition">
+
+        <label>Contact phone</label>
+        <input type="tel" name="phone">
+
+        <label>Address</label>
+        <textarea name="address"></textarea>
+
+        <button type="submit">Add Patient</button>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="section-heading">
+        <h3>Registered patients</h3>
+        <span>{{ patients|length }} total</span>
+    </div>
+
+    {% if patients %}
+    <div class="table-wrapper">
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Care Needs</th>
+                <th>Phone</th>
+            </tr>
+
+            {% for patient in patients %}
+            <tr>
+                <td>{{ patient.id }}</td>
+                <td>{{ patient.name }}</td>
+                <td>{{ patient.age or '-' }}</td>
+                <td>{{ patient.condition or '-' }}</td>
+                <td>{{ patient.phone or '-' }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">No patients have been added yet.</div>
+    {% endif %}
+</section>
+</div>
+{% endblock %}

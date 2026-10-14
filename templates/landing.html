@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome | Nutrix{% endblock %}
+{% block breadcrumb %}Welcome{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <span class="eyebrow">Care that connects</span>
+        <h1>Find the right care, with confidence.</h1>
+        <p>Patients can discover verified care professionals. Nurses and caregivers can find care requests that match their experience.</p>
+        <a class="button-link" href="{{ url_for('login') }}">Sign in <span aria-hidden="true">&nbsp;&rarr;</span></a>
+    </div>
+</section>
+
+<div class="section-heading">
+    <h2>Get started with Nutrix</h2>
+    <span>Your information stays private until you choose to connect.</span>
+</div>
+<div class="quick-actions role-actions">
+    <a class="action-card" href="{{ url_for('register', role='patient') }}">
+        <span class="card-icon">&#9823;</span>
+        <span><strong>I'm looking for care</strong><small>Create a patient account and find verified professionals.</small></span>
+        <span class="action-arrow" aria-hidden="true">&rarr;</span>
+    </a>
+    <a class="action-card" href="{{ url_for('register', role='caregiver') }}">
+        <span class="card-icon blue">&#9822;</span>
+        <span><strong>I'm a care professional</strong><small>Join as a nurse, caretaker, or physiotherapist.</small></span>
+        <span class="action-arrow" aria-hidden="true">&rarr;</span>
+    </a>
+</div>
+<p class="privacy-note">All new accounts are reviewed by an administrator before they can connect with other users.</p>
+{% endblock %}

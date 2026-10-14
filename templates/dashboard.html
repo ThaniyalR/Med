@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Nutrix{% endblock %}
+
+{% block breadcrumb %}Dashboard{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <span class="eyebrow">Your care workspace</span>
+        <h1>Good care starts with a clear picture.</h1>
+        <p>Manage patient records, coordinate caregivers and keep every care visit moving forward.</p>
+        <a class="button-link" href="{{ url_for('admin_verifications') }}">Review accounts <span aria-hidden="true">&nbsp;&rarr;</span></a>
+    </div>
+</section>
+
+<div class="section-heading">
+    <h2>At a glance</h2>
+    <span>Your workspace overview</span>
+</div>
+<div class="cards">
+    <div class="card">
+        <div class="card-top"><span class="card-icon">&#9823;</span></div>
+        <h3>Registered patients</h3>
+        <p class="number">{{ patients }}</p>
+        <a href="{{ url_for('patients_page') }}">Manage patients</a>
+    </div>
+
+    <div class="card">
+        <div class="card-top"><span class="card-icon blue">&#9822;</span></div>
+        <h3>Care team</h3>
+        <p class="number">{{ caregivers }}</p>
+        <a href="{{ url_for('caregivers_page') }}">View caregivers</a>
+    </div>
+
+    <div class="card">
+        <div class="card-top"><span class="card-icon coral">&#128197;</span></div>
+        <h3>Total bookings</h3>
+        <p class="number">{{ bookings }}</p>
+        <a href="{{ url_for('bookings_page') }}">Manage bookings</a>
+    </div>
+
+    <div class="card">
+        <div class="card-top"><span class="card-icon gold">&#9711;</span></div>
+        <h3>Awaiting confirmation</h3>
+        <p class="number">{{ pending }}</p>
+        <a href="{{ url_for('bookings_page') }}">Review requests</a>
+    </div>
+</div>
+
+<div class="section-heading">
+    <h2>Quick actions</h2>
+    <span>Get straight to what you need</span>
+</div>
+<div class="quick-actions">
+    <a class="action-card" href="{{ url_for('patients_page') }}">
+        <span class="card-icon">&#43;</span>
+        <span><strong>Add a patient</strong><small>Create a patient record</small></span>
+    </a>
+    <a class="action-card" href="{{ url_for('caregivers_page') }}">
+        <span class="card-icon blue">&#43;</span>
+        <span><strong>Register a caregiver</strong><small>Grow your care team</small></span>
+    </a>
+    <a class="action-card" href="{{ url_for('care_logs_page') }}">
+        <span class="card-icon coral">&#9776;</span>
+        <span><strong>Write a care note</strong><small>Record a patient update</small></span>
+    </a>
+</div>
+<a class="action-card" href="{{ url_for('admin_verifications') }}">
+    <span class="card-icon gold">&#10003;</span>
+    <span><strong>Account verifications</strong><small>{{ verification_queue }} accounts awaiting document review</small></span>
+</a>
+{% endblock %}

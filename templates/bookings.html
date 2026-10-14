@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Bookings | Nutrix{% endblock %}
+{% block breadcrumb %}Bookings{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <span class="eyebrow">Coordination</span>
+    <h1>Caregiver bookings</h1>
+    <p>Schedule visits and keep track of every appointment request.</p>
+</div>
+
+<div class="page-grid">
+<section class="panel">
+    <h3>Book a caregiver</h3>
+
+    {% if patients and caregivers %}
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label>Select patient *</label>
+        <select name="patient_id" required>
+            <option value="">Choose a patient</option>
+            {% for patient in patients %}
+            <option value="{{ patient.id }}">
+                {{ patient.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <label>Select caregiver *</label>
+        <select name="caregiver_id" required>
+            <option value="">Choose a caregiver</option>
+            {% for caregiver in caregivers %}
+            <option value="{{ caregiver.id }}">
+                {{ caregiver.name }} — {{ caregiver.role }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <label>Appointment date *</label>
+        <input type="date" name="date" required>
+
+        <label>Appointment time *</label>
+        <input type="time" name="time" required>
+
+        <button type="submit">Request Booking</button>
+    </form>
+    {% else %}
+    <div class="empty-state">Add at least one patient and one available caregiver before booking.</div>
+    {% endif %}
+</section>
+
+<section class="panel">
+    <h3>Booking requests</h3>
+
+    {% if bookings %}
+    <div class="table-wrapper">
+        <table>
+            <tr>
+                <th>Patient</th>
+                <th>Caregiver</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Update</th>
+            </tr>
+
+            {% for booking in bookings %}
+            <tr>
+                <td>{{ booking.patient_name }}</td>
+                <td>{{ booking.caregiver_name }} ({{ booking.caregiver_role }})</td>
+                <td>{{ booking.date }}</td>
+                <td>{{ booking.time }}</td>
+                <td>{{ booking.status }}</td>
+                <td>
+                    <form method="POST"
+                          action="{{ url_for('booking_status', booking_id=booking.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <select name="status">
+                            {% for status in ['Pending', 'Confirmed', 'Completed', 'Cancelled'] %}
+                            <option value="{{ status }}"
+                                {% if booking.status == status %}selected{% endif %}>
+                                {{ status }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit">Save</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">No bookings yet.</div>
+    {% endif %}
+</section>
+</div>
+{% endblock %}

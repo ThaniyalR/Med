@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Patient' if role == 'patient' else 'Care professional' }} registration | Nutrix{% endblock %}
+{% block breadcrumb %}Create account{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <span class="eyebrow">Create your account</span>
+    <h1>{{ 'Patient registration' if role == 'patient' else 'Care professional registration' }}</h1>
+    <p>
+        {% if role == 'patient' %}
+        Add your details to find verified care professionals and request support.
+        {% else %}
+        Share your professional details. Your credentials will be reviewed before your profile appears in search.
+        {% endif %}
+    </p>
+</div>
+<section class="panel auth-panel">
+    <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label for="name">Full name *</label>
+        <input id="name" type="text" name="name" maxlength="120" autocomplete="name" required>
+
+        <label for="email">Email address *</label>
+        <input id="email" type="email" name="email" maxlength="254" autocomplete="email" required>
+
+        <label for="password">Password * (at least 10 characters)</label>
+        <input id="password" type="password" name="password" minlength="10" autocomplete="new-password" required>
+
+        <label for="phone">Phone number *</label>
+        <input id="phone" type="tel" name="phone" maxlength="30" autocomplete="tel" required>
+
+        <label for="city">City *</label>
+        <input id="city" type="text" name="city" maxlength="100" autocomplete="address-level2" required>
+
+        {% if role == 'patient' %}
+            <label for="age">Age</label>
+            <input id="age" type="number" name="age" min="0" max="130">
+
+            <label for="condition">Care needs</label>
+            <textarea id="condition" name="condition" maxlength="1000" placeholder="Briefly describe the support you are looking for"></textarea>
+
+            <label for="address">Address (optional)</label>
+            <textarea id="address" name="address" maxlength="500" autocomplete="street-address"></textarea>
+
+            <label for="credential">Identity document * (PDF, JPG, JPEG or PNG; up to 5 MB)</label>
+        {% else %}
+            <label for="caregiver_role">Profession *</label>
+            <select id="caregiver_role" name="caregiver_role" required>
+                <option value="">Choose your profession</option>
+                <option value="Nurse">Nurse</option>
+                <option value="Caretaker">Caretaker</option>
+                <option value="Physiotherapist">Physiotherapist</option>
+            </select>
+
+            <label for="experience">Experience in years *</label>
+            <input id="experience" type="number" name="experience" min="0" max="70" required>
+
+            <label for="license_number">License or registration number *</label>
+            <input id="license_number" type="text" name="license_number" maxlength="100" required>
+
+            <label for="bio">Professional introduction *</label>
+            <textarea id="bio" name="bio" maxlength="1200" required placeholder="Describe your experience and the care you provide"></textarea>
+
+            <label for="credential">Professional license or credential * (PDF, JPG, JPEG or PNG; up to 5 MB)</label>
+        {% endif %}
+        <input id="credential" type="file" name="credential" accept=".pdf,.jpg,.jpeg,.png" required>
+        <p class="privacy-note">Your document is stored privately and can only be viewed by an administrator reviewing your account.</p>
+        <button type="submit">Create account</button>
+    </form>
+    <p class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Sign in</a></p>
+</section>
+{% endblock %}

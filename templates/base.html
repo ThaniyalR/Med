@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Nutrix{% endblock %}</title>
+    <link rel="stylesheet"
+          href="{{ url_for('stylesheet') }}">
+</head>
+<body>
+    {% set current_endpoint = request.endpoint %}
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="{{ url_for('dashboard') }}">
+                <span class="brand-mark">n</span>
+                <span>
+                    <span class="brand-name">Nutrix</span>
+                    <span class="brand-caption">Care management</span>
+                </span>
+            </a>
+
+            <span class="nav-label">{% if current_user %}Workspace{% else %}Welcome{% endif %}</span>
+            <nav aria-label="Main navigation">
+                {% if not current_user %}
+                    <a href="{{ url_for('login') }}" class="{% if current_endpoint == 'login' %}active{% endif %}">
+                        <span class="nav-icon" aria-hidden="true">&#8594;</span> Sign in
+                    </a>
+                    <a href="{{ url_for('register', role='patient') }}">
+                        <span class="nav-icon" aria-hidden="true">&#43;</span> Patient account
+                    </a>
+                    <a href="{{ url_for('register', role='caregiver') }}">
+                        <span class="nav-icon" aria-hidden="true">&#43;</span> Care team account
+                    </a>
+                {% elif current_user.role == 'patient' %}
+                    <a href="{{ url_for('patient_dashboard') }}" class="{% if current_endpoint == 'patient_dashboard' %}active{% endif %}">
+                        <span class="nav-icon" aria-hidden="true">&#9633;</span> My care
+                    </a>
+                {% elif current_user.role == 'caregiver' %}
+                    <a href="{{ url_for('caregiver_dashboard') }}" class="{% if current_endpoint == 'caregiver_dashboard' %}active{% endif %}">
+                        <span class="nav-icon" aria-hidden="true">&#9633;</span> Care workspace
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('dashboard') }}" class="{% if current_endpoint == 'dashboard' %}active{% endif %}">
+                        <span class="nav-icon" aria-hidden="true">&#9633;</span> Dashboard
+                    </a>
+                    <a href="{{ url_for('admin_verifications') }}" class="{% if current_endpoint in ['admin_verifications', 'review_verification'] %}active{% endif %}">
+                        <span class="nav-icon" aria-hidden="true">&#10003;</span> Verification review
+                    </a>
+                    <a href="{{ url_for('patients_page') }}" class="{% if current_endpoint == 'patients_page' %}active{% endif %}">
+                        <span class="nav-icon" aria-hidden="true">&#9823;</span> Patients
+                    </a>
+                    <a href="{{ url_for('caregivers_page') }}" class="{% if current_endpoint == 'caregivers_page' %}active{% endif %}">
+                        <span class="nav-icon" aria-hidden="true">&#9822;</span> Caregivers
+                    </a>
+                    <a href="{{ url_for('bookings_page') }}" class="{% if current_endpoint in ['bookings_page', 'booking_status'] %}active{% endif %}">
+                        <span class="nav-icon" aria-hidden="true">&#128197;</span> Bookings
+                    </a>
+                    <a href="{{ url_for('care_logs_page') }}" class="{% if current_endpoint == 'care_logs_page' %}active{% endif %}">
+                        <span class="nav-icon" aria-hidden="true">&#9776;</span> Care Logs
+                    </a>
+                {% endif %}
+            </nav>
+
+            <div class="sidebar-note">
+                {% if current_user %}
+                    <strong>{{ current_user.name }}</strong>
+                    <span>{{ current_user.email }}</span>
+                    <form method="POST" action="{{ url_for('logout') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <button type="submit" class="sidebar-signout">Sign out</button>
+                    </form>
+                {% else %}
+                    <strong>Care, connected.</strong>
+                    <span>Find care and keep every detail in one secure place.</span>
+                {% endif %}
+            </div>
+        </aside>
+
+        <div class="workspace">
+            <div class="topbar">
+                <span class="topbar-label">Workspace <strong>/ {% block breadcrumb %}Overview{% endblock %}</strong></span>
+                <span class="topbar-status"><span class="status-dot"></span>
+                    {% if current_user %}{{ current_user.role|title }} account{% else %}Care workspace{% endif %}
+                </span>
+            </div>
+
+            <main>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="message">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </main>
+
+            <footer>
+                <p>Nutrix <span aria-hidden="true">&middot;</span> Care made simpler.
+                    {% if current_user and current_user.role != 'admin' %}
+                    <span class="verification-badge {{ current_user.verification_status }}">
+                        {{ current_user.verification_status|title }} verification
+                    </span>
+                    {% endif %}
+                </p>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>

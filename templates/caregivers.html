@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Caregivers | Nutrix{% endblock %}
+{% block breadcrumb %}Caregivers{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <span class="eyebrow">People</span>
+    <h1>Nurses &amp; caregivers</h1>
+    <p>Build your care team and keep availability up to date.</p>
+</div>
+
+<div class="page-grid">
+<section class="panel">
+    <h3>Register a caregiver</h3>
+
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label>Full name *</label>
+        <input type="text" name="name" required>
+
+        <label>Role *</label>
+        <select name="role" required>
+            <option value="">Select role</option>
+            <option value="Nurse">Nurse</option>
+            <option value="Caretaker">Caretaker</option>
+            <option value="Physiotherapist">Physiotherapist</option>
+        </select>
+
+        <label>Phone number</label>
+        <input type="tel" name="phone">
+
+        <label>Experience in years</label>
+        <input type="number" name="experience" min="0" max="70">
+
+        <label>Availability</label>
+        <select name="available">
+            <option value="Available">Available</option>
+            <option value="Unavailable">Unavailable</option>
+        </select>
+
+        <button type="submit">Add Caregiver</button>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="section-heading">
+        <h3>Registered caregivers</h3>
+        <span>{{ caregivers|length }} total</span>
+    </div>
+
+    {% if caregivers %}
+    <div class="table-wrapper">
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Phone</th>
+                <th>Experience</th>
+                <th>Availability</th>
+            </tr>
+
+            {% for caregiver in caregivers %}
+            <tr>
+                <td>{{ caregiver.name }}</td>
+                <td>{{ caregiver.role }}</td>
+                <td>{{ caregiver.phone or '-' }}</td>
+                <td>{{ caregiver.experience }} years</td>
+                <td>{{ caregiver.available }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">No caregivers registered yet.</div>
+    {% endif %}
+</section>
+</div>
+{% endblock %}

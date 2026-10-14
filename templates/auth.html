@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Sign in | Nutrix{% endblock %}
+{% block breadcrumb %}Sign in{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <span class="eyebrow">Welcome back</span>
+    <h1>Sign in to Nutrix</h1>
+    <p>Access your care workspace securely.</p>
+</div>
+<section class="panel auth-panel">
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label for="email">Email address</label>
+        <input id="email" type="email" name="email" autocomplete="username" required>
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password" autocomplete="current-password" required>
+        <button type="submit">Sign in</button>
+    </form>
+    <p class="auth-switch">New to Nutrix?
+        <a href="{{ url_for('register', role='patient') }}">Create a patient account</a>
+        or <a href="{{ url_for('register', role='caregiver') }}">join the care team</a>.
+    </p>
+</section>
+{% endblock %}
