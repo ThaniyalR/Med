@@ -20,7 +20,7 @@ Nutrix can be installed from a supported browser as a Progressive Web App (PWA).
 
 ## Languages
 
-Choose English, Hindi, Tamil, Telugu, Kannada, Malayalam, Bengali, Marathi, or Gujarati from the language selector. The choice is saved in that browser. App interface text is translated locally; names, care notes, profile details, and other user-entered information stay in the language in which they were written.
+Choose English, Hindi, Tamil, Telugu, Kannada, Malayalam, Bengali, Marathi, Gujarati, or Punjabi from the language selector. The choice is saved in that browser. App interface text is translated locally; names, care notes, profile details, and other user-entered information stay in the language in which they were written.
 
 ## Supabase and Vercel deployment
 

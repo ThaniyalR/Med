@@ -12,6 +12,7 @@ const languageLocales = {
   bn: "bn-IN",
   mr: "mr-IN",
   gu: "gu-IN",
+  pa: "pa-IN",
 };
 let installPrompt;
 let currentLanguage = "en";
@@ -61,6 +62,13 @@ function translateCount(text, dictionary) {
     if (label && status) {
       return `${label} ${status}`;
     }
+  }
+
+  const verificationFlashMatch = text.match(
+    /^Account verification (Pending|Approved|Rejected)\.$/
+  );
+  if (verificationFlashMatch && dictionary["Account verification "]) {
+    return `${dictionary["Account verification "]}${dictionary[verificationFlashMatch[1]]}.`;
   }
 
   const badgeMatch = text.match(/^(Pending|Approved|Rejected) verification$/);

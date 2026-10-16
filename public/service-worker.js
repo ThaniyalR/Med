@@ -1,4 +1,4 @@
-const CACHE_NAME = "nutrix-static-v2";
+const CACHE_NAME = "nutrix-static-v3";
 const STATIC_ASSETS = ["/style.css", "/brand-logo", "/app.js", "/translations.js"];
 
 self.addEventListener("install", (event) => {
