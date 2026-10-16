@@ -22,7 +22,7 @@
             <option value="">Choose a patient</option>
             {% for patient in patients %}
             <option value="{{ patient.id }}">
-                {{ patient.name }}
+                <span data-user-content>{{ patient.name }}</span>
             </option>
             {% endfor %}
         </select>
@@ -46,9 +46,9 @@
     {% if logs %}
         {% for log in logs %}
         <div class="log-entry">
-            <h4>{{ log.patient_name }}</h4>
-            <p>{{ log.note }}</p>
-            <small>{{ log.log_date }}</small>
+            <h4 data-user-content>{{ log.patient_name }}</h4>
+            <p data-user-content>{{ log.note }}</p>
+            <small data-user-content>{{ log.log_date }}</small>
         </div>
         {% endfor %}
     {% else %}

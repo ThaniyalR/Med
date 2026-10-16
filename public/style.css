@@ -225,6 +225,18 @@ nav a.active .nav-icon {
     gap: 14px;
 }
 
+.language-picker {
+    margin: 0;
+}
+
+.language-picker select {
+    width: auto;
+    min-width: 112px;
+    min-height: 36px;
+    padding: 6px 30px 6px 10px;
+    font-size: 12px;
+}
+
 .topbar-actions button {
     min-height: 36px;
     margin: 0;
@@ -1268,6 +1280,13 @@ footer p {
         font-size: 11px;
     }
 
+    .language-picker select {
+        min-width: 92px;
+        min-height: 34px;
+        padding: 5px 24px 5px 7px;
+        font-size: 11px;
+    }
+
     .install-app-status {
         display: none;
     }
@@ -1300,6 +1319,10 @@ footer p {
 }
 
 @media (max-width: 480px) {
+    .topbar-label {
+        display: none;
+    }
+
     .topbar-status {
         font-size: 0;
     }

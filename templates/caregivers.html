@@ -62,11 +62,11 @@
 
             {% for caregiver in caregivers %}
             <tr>
-                <td>{{ caregiver.name }}</td>
-                <td>{{ caregiver.role }}</td>
-                <td>{{ caregiver.phone or '-' }}</td>
-                <td>{{ caregiver.experience }} years</td>
-                <td>{{ caregiver.available }}</td>
+                <td data-user-content>{{ caregiver.name }}</td>
+                <td data-user-content>{{ caregiver.role }}</td>
+                <td data-user-content>{{ caregiver.phone or '-' }}</td>
+                <td><span data-user-content>{{ caregiver.experience }}</span> years</td>
+                <td data-user-content>{{ caregiver.available }}</td>
             </tr>
             {% endfor %}
         </table>

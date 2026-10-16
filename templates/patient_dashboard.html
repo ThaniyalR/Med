@@ -16,7 +16,7 @@
         <strong>Account verification: {{ current_user.verification_status|title }}</strong>
         <p>
             {% if current_user.verification_status == 'rejected' and current_user.review_note %}
-            Review note: {{ current_user.review_note }}
+            <strong>Review note:</strong> <span data-user-content>{{ current_user.review_note }}</span>
             {% else %}
             You can explore the care team. Your identity must be approved before you post requests or book a visit.
             {% endif %}
@@ -55,11 +55,11 @@
         {% for care_request in requests %}
         <article class="request-card">
             <div class="request-card-heading">
-                <strong>{{ care_request.city }} <span class="request-status">{{ care_request.status }}</span></strong>
-                <small>{{ care_request.created_at }}</small>
+                <strong><span data-user-content>{{ care_request.city }}</span> <span class="request-status">{{ care_request.status }}</span></strong>
+                <small data-user-content>{{ care_request.created_at }}</small>
             </div>
-            <p>{{ care_request.summary }}</p>
-            <small>Preferred schedule: {{ care_request.schedule }}</small>
+            <p data-user-content>{{ care_request.summary }}</p>
+            <small>Preferred schedule: <span data-user-content>{{ care_request.schedule }}</span></small>
             {% if care_request.status == 'Open' %}
             <form method="POST" action="{{ url_for('close_care_request', request_id=care_request.id) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
@@ -92,14 +92,14 @@
             {% for caregiver in caregivers %}
             <article class="provider-card">
                 <div class="provider-heading">
-                    <span class="provider-avatar">{{ caregiver.name[:1]|upper }}</span>
+                    <span class="provider-avatar" data-user-content>{{ caregiver.name[:1]|upper }}</span>
                     <div>
-                        <strong>{{ caregiver.name }} <span class="verified-label">&#10003; Verified</span></strong>
-                        <span>{{ caregiver.role }} · {{ caregiver.city }}</span>
+                        <strong><span data-user-content>{{ caregiver.name }}</span> <span class="verified-label">&#10003; Verified</span></strong>
+                        <span data-user-content>{{ caregiver.role }} · {{ caregiver.city }}</span>
                     </div>
                 </div>
-                <p>{{ caregiver.bio or 'Experienced care professional.' }}</p>
-                <div class="provider-meta">{{ caregiver.experience }} years experience</div>
+                <p>{% if caregiver.bio %}<span data-user-content>{{ caregiver.bio }}</span>{% else %}Experienced care professional.{% endif %}</p>
+                <div class="provider-meta"><span data-user-content>{{ caregiver.experience }}</span> years experience</div>
                 {% if current_user.verification_status == 'approved' %}
                 <form method="POST" action="{{ url_for('request_booking', caregiver_id=caregiver.id) }}" class="booking-request-form">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
@@ -128,8 +128,8 @@
             <tbody>
             {% for booking in bookings %}
             <tr>
-                <td>{{ booking.caregiver_name }}</td><td>{{ booking.caregiver_role }}</td>
-                <td>{{ booking.date }}</td><td>{{ booking.time }}</td><td>{{ booking.status }}</td>
+                <td data-user-content>{{ booking.caregiver_name }}</td><td data-user-content>{{ booking.caregiver_role }}</td>
+                <td data-user-content>{{ booking.date }}</td><td data-user-content>{{ booking.time }}</td><td>{{ booking.status }}</td>
                 <td>
                     {% if booking.status in ['Pending', 'Confirmed'] %}
                     <form method="POST" action="{{ url_for('update_my_booking', booking_id=booking.id) }}">

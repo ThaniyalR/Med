@@ -24,12 +24,12 @@
         <div class="verification-card-heading">
             <div>
                 <span class="eyebrow">{{ user.role|title }} account</span>
-                <h2>{{ user.name }}</h2>
-                <p>{{ user.email }} · Submitted {{ user.created_at }}</p>
+                <h2 data-user-content>{{ user.name }}</h2>
+                <p><span data-user-content>{{ user.email }}</span> · <span>Submitted</span> <span data-user-content>{{ user.created_at }}</span></p>
             </div>
             <span class="verification-badge {{ user.verification_status }}">{{ user.verification_status|title }}</span>
         </div>
-        {% if user.review_note %}<p class="review-note"><strong>Review note:</strong> {{ user.review_note }}</p>{% endif %}
+        {% if user.review_note %}<p class="review-note"><strong>Review note:</strong> <span data-user-content>{{ user.review_note }}</span></p>{% endif %}
         <a class="document-link" href="{{ url_for('verification_document', user_id=user.id) }}">Download submitted document <span aria-hidden="true">&darr;</span></a>
         {% if status == 'pending' %}
         <form method="POST" action="{{ url_for('review_verification', user_id=user.id) }}" class="review-form">

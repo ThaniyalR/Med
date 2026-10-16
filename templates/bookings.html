@@ -22,7 +22,7 @@
             <option value="">Choose a patient</option>
             {% for patient in patients %}
             <option value="{{ patient.id }}">
-                {{ patient.name }}
+                <span data-user-content>{{ patient.name }}</span>
             </option>
             {% endfor %}
         </select>
@@ -32,7 +32,7 @@
             <option value="">Choose a caregiver</option>
             {% for caregiver in caregivers %}
             <option value="{{ caregiver.id }}">
-                {{ caregiver.name }} — {{ caregiver.role }}
+                <span data-user-content>{{ caregiver.name }} — {{ caregiver.role }}</span>
             </option>
             {% endfor %}
         </select>
@@ -67,10 +67,10 @@
 
             {% for booking in bookings %}
             <tr>
-                <td>{{ booking.patient_name }}</td>
-                <td>{{ booking.caregiver_name }} ({{ booking.caregiver_role }})</td>
-                <td>{{ booking.date }}</td>
-                <td>{{ booking.time }}</td>
+                <td data-user-content>{{ booking.patient_name }}</td>
+                <td data-user-content>{{ booking.caregiver_name }} ({{ booking.caregiver_role }})</td>
+                <td data-user-content>{{ booking.date }}</td>
+                <td data-user-content>{{ booking.time }}</td>
                 <td>{{ booking.status }}</td>
                 <td>
                     <form method="POST"

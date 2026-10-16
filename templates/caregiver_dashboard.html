@@ -16,7 +16,7 @@
         <strong>Credential verification: {{ current_user.verification_status|title }}</strong>
         <p>
             {% if current_user.verification_status == 'rejected' and current_user.review_note %}
-            Review note: {{ current_user.review_note }}
+            <strong>Review note:</strong> <span data-user-content>{{ current_user.review_note }}</span>
             {% else %}
             Your profile is not yet listed in patient search. You can browse patient requests after approval.
             {% endif %}
@@ -50,10 +50,10 @@
             <article class="request-card">
                 <div class="request-card-heading">
                     <strong>Care request #{{ care_request.id }}</strong>
-                    <small>{{ care_request.created_at }}</small>
+                    <small data-user-content>{{ care_request.created_at }}</small>
                 </div>
-                <p>{{ care_request.summary }}</p>
-                <div class="provider-meta">{{ care_request.city }} · {{ care_request.schedule }}</div>
+                <p data-user-content>{{ care_request.summary }}</p>
+                <div class="provider-meta" data-user-content>{{ care_request.city }} · {{ care_request.schedule }}</div>
                 <p class="privacy-note">Patient contact details are private until an appointment is requested.</p>
             </article>
             {% endfor %}
@@ -68,12 +68,12 @@
     <section class="panel">
         <h2>Your professional profile</h2>
         <div class="profile-details">
-            <div><span>Profession</span><strong>{{ caregiver.role }}</strong></div>
-            <div><span>Experience</span><strong>{{ caregiver.experience }} years</strong></div>
-            <div><span>City</span><strong>{{ caregiver.city }}</strong></div>
-            <div><span>License / registration</span><strong>{{ caregiver.license_number }}</strong></div>
+            <div><span>Profession</span><strong data-user-content>{{ caregiver.role }}</strong></div>
+            <div><span>Experience</span><strong data-user-content>{{ caregiver.experience }}</strong> years</div>
+            <div><span>City</span><strong data-user-content>{{ caregiver.city }}</strong></div>
+            <div><span>License / registration</span><strong data-user-content>{{ caregiver.license_number }}</strong></div>
         </div>
-        <p>{{ caregiver.bio }}</p>
+        <p data-user-content>{{ caregiver.bio }}</p>
         <span class="verification-badge {{ current_user.verification_status }}">
             {{ current_user.verification_status|title }} verification
         </span>
@@ -89,8 +89,8 @@
             <tbody>
             {% for booking in bookings %}
             <tr>
-                <td>{{ booking.patient_name }}</td><td>{{ booking.date }}</td>
-                <td>{{ booking.time }}</td><td>{{ booking.status }}</td>
+                <td data-user-content>{{ booking.patient_name }}</td><td data-user-content>{{ booking.date }}</td>
+                <td data-user-content>{{ booking.time }}</td><td>{{ booking.status }}</td>
                 <td>
                     {% if booking.status == 'Pending' %}
                     <div class="inline-actions">

@@ -54,11 +54,11 @@
 
             {% for patient in patients %}
             <tr>
-                <td>{{ patient.id }}</td>
-                <td>{{ patient.name }}</td>
-                <td>{{ patient.age or '-' }}</td>
-                <td>{{ patient.condition or '-' }}</td>
-                <td>{{ patient.phone or '-' }}</td>
+                <td data-user-content>{{ patient.id }}</td>
+                <td data-user-content>{{ patient.name }}</td>
+                <td data-user-content>{{ patient.age or '-' }}</td>
+                <td data-user-content>{{ patient.condition or '-' }}</td>
+                <td data-user-content>{{ patient.phone or '-' }}</td>
             </tr>
             {% endfor %}
         </table>

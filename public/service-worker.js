@@ -1,5 +1,5 @@
-const CACHE_NAME = "nutrix-static-v1";
-const STATIC_ASSETS = ["/style.css", "/brand-logo", "/app.js"];
+const CACHE_NAME = "nutrix-static-v2";
+const STATIC_ASSETS = ["/style.css", "/brand-logo", "/app.js", "/translations.js"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

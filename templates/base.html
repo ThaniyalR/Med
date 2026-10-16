@@ -11,6 +11,7 @@
     <link rel="apple-touch-icon" href="{{ url_for('app_icon', size=180) }}">
     <link rel="stylesheet"
           href="{{ url_for('stylesheet') }}">
+    <script src="{{ url_for('translations_script') }}" defer></script>
     <script src="{{ url_for('app_script') }}" defer></script>
 </head>
 <body>
@@ -69,7 +70,7 @@
 
             <div class="sidebar-note">
                 {% if current_user %}
-                    <strong>{{ current_user.name }}</strong>
+                    <strong data-user-content>{{ current_user.name }}</strong>
                     <span>{{ current_user.email }}</span>
                 {% else %}
                     <strong>Care, connected.</strong>
@@ -80,8 +81,22 @@
 
         <div class="workspace">
             <div class="topbar">
-                <span class="topbar-label">Workspace <strong>/ {% block breadcrumb %}Overview{% endblock %}</strong></span>
+                <span class="topbar-label">Workspace <strong>/ <span>{% block breadcrumb %}Overview{% endblock %}</span></strong></span>
                 <div class="topbar-actions">
+                    <label class="language-picker">
+                        <span class="visually-hidden">Language</span>
+                        <select id="language-select" aria-label="Language">
+                            <option value="en">English</option>
+                            <option value="hi">हिन्दी</option>
+                            <option value="ta">தமிழ்</option>
+                            <option value="te">తెలుగు</option>
+                            <option value="kn">ಕನ್ನಡ</option>
+                            <option value="ml">മലയാളം</option>
+                            <option value="bn">বাংলা</option>
+                            <option value="mr">मराठी</option>
+                            <option value="gu">ગુજરાતી</option>
+                        </select>
+                    </label>
                     <span class="topbar-status"><span class="status-dot"></span>
                         {% if current_user %}{{ current_user.role|title }} account{% else %}Care workspace{% endif %}
                     </span>

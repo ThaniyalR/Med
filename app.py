@@ -357,6 +357,15 @@ def app_script():
     )
 
 
+@app.route("/translations.js")
+def translations_script():
+    return send_from_directory(
+        BASE_DIR / "public",
+        "translations.js",
+        mimetype="application/javascript",
+    )
+
+
 def storage_request(method, path, body=None, content_type=None):
     supabase_url, service_role_key = storage_configuration()
     if not supabase_url:
