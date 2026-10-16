@@ -7,8 +7,8 @@
     <meta name="description" content="Nutrix helps patients and care professionals connect and manage care.">
     <title>{% block title %}Nutrix{% endblock %}</title>
     <link rel="manifest" href="{{ url_for('web_manifest') }}">
-    <link rel="icon" href="{{ url_for('brand_logo') }}">
-    <link rel="apple-touch-icon" href="{{ url_for('brand_logo') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('app_icon', size=192) }}">
+    <link rel="apple-touch-icon" href="{{ url_for('app_icon', size=180) }}">
     <link rel="stylesheet"
           href="{{ url_for('stylesheet') }}">
     <script src="{{ url_for('app_script') }}" defer></script>

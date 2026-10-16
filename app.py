@@ -326,6 +326,17 @@ def brand_logo():
     return send_from_directory(BASE_DIR / "public", "app-icon.svg")
 
 
+@app.route("/nutrix-icon-<int:size>.png")
+def app_icon(size):
+    if size not in {180, 192, 512}:
+        abort(404)
+    return send_from_directory(
+        BASE_DIR / "public",
+        f"nutrix-icon-{size}.png",
+        mimetype="image/png",
+    )
+
+
 @app.route("/service-worker.js")
 def service_worker():
     response = send_from_directory(
