@@ -198,6 +198,7 @@ def initialize_database():
                 visit_location TEXT NOT NULL DEFAULT '',
                 health_description TEXT NOT NULL DEFAULT '',
                 status TEXT DEFAULT 'Pending',
+                submission_token TEXT,
                 FOREIGN KEY(patient_id) REFERENCES patients(id),
                 FOREIGN KEY(caregiver_id) REFERENCES caregivers(id)
             );
@@ -236,6 +237,7 @@ def initialize_database():
         ensure_column(
             db, "bookings", "health_description", "TEXT NOT NULL DEFAULT ''"
         )
+        ensure_column(db, "bookings", "submission_token", "TEXT")
         db.execute(
             "CREATE INDEX IF NOT EXISTS idx_care_requests_patient "
             "ON care_requests(patient_id)"
@@ -247,6 +249,10 @@ def initialize_database():
         db.execute(
             "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_lower "
             "ON users(LOWER(email))"
+        )
+        db.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_bookings_submission_token "
+            "ON bookings(submission_token)"
         )
 
 
@@ -682,6 +688,9 @@ def patient_dashboard():
         bookings=bookings,
         query=query,
         role_filter=role_filter,
+        booking_tokens={
+            caregiver["id"]: secrets.token_urlsafe(32) for caregiver in caregivers
+        },
     )
 
 
@@ -797,10 +806,13 @@ def request_booking(caregiver_id):
         return redirect(url_for("patient_dashboard"))
     date = request.form.get("date", "")
     time = request.form.get("time", "")
+    submission_token = request.form.get("submission_token", "")
     visit_location = request.form.get("visit_location", "").strip()
     health_description = request.form.get("health_description", "").strip()
     if (
-        not date
+        not submission_token
+        or len(submission_token) > 128
+        or not date
         or not time
         or not visit_location
         or len(visit_location) > 300
@@ -820,9 +832,11 @@ def request_booking(caregiver_id):
         ).fetchone()
         if caregiver is None:
             abort(404)
-        db.execute(
+        inserted = db.execute(
             "INSERT INTO bookings (patient_id, caregiver_id, date, time, "
-            "visit_location, health_description) VALUES (?, ?, ?, ?, ?, ?)",
+            "visit_location, health_description, submission_token) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?) "
+            "ON CONFLICT (submission_token) DO NOTHING",
             (
                 patient["id"],
                 caregiver_id,
@@ -830,9 +844,13 @@ def request_booking(caregiver_id):
                 time,
                 visit_location,
                 health_description,
+                submission_token,
             ),
-        )
-    flash("Booking request sent to the caregiver.")
+        ).rowcount
+    if inserted:
+        flash("Booking request sent to the caregiver.")
+    else:
+        flash("This booking request was already submitted.")
     return redirect(url_for("patient_dashboard"))
 
 
@@ -982,7 +1000,12 @@ def bookings_page():
             caregiver_id = request.form.get("caregiver_id")
             date = request.form.get("date")
             time = request.form.get("time")
-            if not all([patient_id, caregiver_id, date, time]):
+            submission_token = request.form.get("submission_token", "")
+            if (
+                not all([patient_id, caregiver_id, date, time])
+                or not submission_token
+                or len(submission_token) > 128
+            ):
                 flash("Please complete all booking fields.", "error")
                 return redirect(url_for("bookings_page"))
             patient = db.execute(
@@ -995,12 +1018,16 @@ def bookings_page():
             if not patient or not caregiver:
                 flash("Choose a valid patient and available caregiver.", "error")
                 return redirect(url_for("bookings_page"))
-            db.execute(
-                "INSERT INTO bookings (patient_id, caregiver_id, date, time) "
-                "VALUES (?, ?, ?, ?)",
-                (patient_id, caregiver_id, date, time),
-            )
-            flash("Booking request created successfully.")
+            inserted = db.execute(
+                "INSERT INTO bookings (patient_id, caregiver_id, date, time, "
+                "submission_token) VALUES (?, ?, ?, ?, ?) "
+                "ON CONFLICT (submission_token) DO NOTHING",
+                (patient_id, caregiver_id, date, time, submission_token),
+            ).rowcount
+            if inserted:
+                flash("Booking request created successfully.")
+            else:
+                flash("This booking request was already submitted.")
             return redirect(url_for("bookings_page"))
         patients = db.execute(
             "SELECT * FROM patients ORDER BY name"
@@ -1022,6 +1049,7 @@ def bookings_page():
         patients=patients,
         caregivers=caregivers,
         bookings=bookings,
+        submission_token=secrets.token_urlsafe(32),
     )
 
 

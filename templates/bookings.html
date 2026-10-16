@@ -17,6 +17,7 @@
     {% if patients and caregivers %}
     <form method="POST" data-single-submit>
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="submission_token" value="{{ submission_token }}">
         <label>Select patient *</label>
         <select name="patient_id" required>
             <option value="">Choose a patient</option>

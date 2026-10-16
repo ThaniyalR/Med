@@ -103,6 +103,7 @@
                 {% if current_user.verification_status == 'approved' %}
                 <form method="POST" action="{{ url_for('request_booking', caregiver_id=caregiver.id) }}" class="booking-request-form" data-single-submit>
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <input type="hidden" name="submission_token" value="{{ booking_tokens[caregiver.id] }}">
                     <label for="date-{{ caregiver.id }}">Request a visit</label>
                     <div class="booking-fields">
                         <input id="date-{{ caregiver.id }}" type="date" name="date" required>
