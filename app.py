@@ -306,6 +306,46 @@ def stylesheet():
     return send_from_directory(BASE_DIR / "public", "style.css")
 
 
+@app.route("/manifest.webmanifest")
+def web_manifest():
+    return send_from_directory(
+        BASE_DIR / "public",
+        "manifest.webmanifest",
+        mimetype="application/manifest+json",
+    )
+
+
+@app.route("/brand-logo")
+def brand_logo():
+    public_logo = BASE_DIR / "public" / "logo.png"
+    project_logo = BASE_DIR / "logo.png"
+    if public_logo.is_file():
+        return send_from_directory(BASE_DIR / "public", "logo.png")
+    if project_logo.is_file():
+        return send_from_directory(BASE_DIR, "logo.png")
+    return send_from_directory(BASE_DIR / "public", "app-icon.svg")
+
+
+@app.route("/service-worker.js")
+def service_worker():
+    response = send_from_directory(
+        BASE_DIR / "public",
+        "service-worker.js",
+        mimetype="application/javascript",
+    )
+    response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
+@app.route("/app.js")
+def app_script():
+    return send_from_directory(
+        BASE_DIR / "public",
+        "app.js",
+        mimetype="application/javascript",
+    )
+
+
 def storage_request(method, path, body=None, content_type=None):
     supabase_url, service_role_key = storage_configuration()
     if not supabase_url:

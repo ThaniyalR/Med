@@ -52,16 +52,11 @@ body {
 }
 
 .brand-mark {
-    display: grid;
+    display: block;
     width: 42px;
     height: 42px;
-    place-items: center;
     border-radius: 14px;
-    background: #19a58f;
-    color: white;
-    font-family: 'Manrope', sans-serif;
-    font-size: 25px;
-    font-weight: 800;
+    object-fit: contain;
     box-shadow: 0 6px 16px rgba(25, 165, 143, .23);
 }
 
@@ -222,6 +217,43 @@ nav a.active .nav-icon {
     border-radius: 50%;
     background: #28b98e;
     box-shadow: 0 0 0 4px #e5f6ef;
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.topbar-actions button {
+    min-height: 36px;
+    margin: 0;
+    padding: 0 13px;
+    font-size: 12px;
+}
+
+.topbar-signout {
+    margin: 0;
+}
+
+.topbar-signout button {
+    border: 1px solid #d9e5e5;
+    background: white;
+    color: var(--teal-dark);
+}
+
+.topbar-signout button:hover {
+    background: #f1f7f6;
+    box-shadow: none;
+}
+
+.install-app-status {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+[hidden] {
+    display: none !important;
 }
 
 main {
@@ -1226,6 +1258,20 @@ footer p {
         padding: 0 22px;
     }
 
+    .topbar-actions {
+        gap: 8px;
+    }
+
+    .topbar-actions button {
+        min-height: 34px;
+        padding: 0 9px;
+        font-size: 11px;
+    }
+
+    .install-app-status {
+        display: none;
+    }
+
     main {
         min-height: calc(100vh - 220px);
         padding: 27px 22px 40px;
@@ -1256,6 +1302,10 @@ footer p {
 @media (max-width: 480px) {
     .topbar-status {
         font-size: 0;
+    }
+
+    .topbar-actions {
+        gap: 6px;
     }
 
     .topbar-status .status-dot {

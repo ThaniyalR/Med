@@ -14,6 +14,10 @@ From PowerShell in this folder:
 
 The app opens at <http://127.0.0.1:5000/>. The administrator command prompts for an email and password; keep those credentials private. Local development defaults to SQLite and local document files.
 
+## Install the app
+
+Nutrix can be installed from a supported browser as a Progressive Web App (PWA). The app uses `logo.png` from the project root (or `public\logo.png`) in the navigation and as its install icon, and falls back to the built-in Nutrix icon when no logo file is present. Run locally at `http://127.0.0.1:5000/`, or deploy over HTTPS, then use **Install app** when your browser offers it. On iPhone or iPad, open the page in Safari and choose **Share > Add to Home Screen**. The app needs an internet connection to load account and care information; private pages are never stored for offline use.
+
 ## Supabase and Vercel deployment
 
 The Vercel setup uses Supabase Postgres for persistent application records and a private Supabase Storage bucket for verification documents. Do not deploy a real healthcare service until a qualified security/privacy review and applicable legal review are complete.

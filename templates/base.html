@@ -3,16 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#12343a">
+    <meta name="description" content="Nutrix helps patients and care professionals connect and manage care.">
     <title>{% block title %}Nutrix{% endblock %}</title>
+    <link rel="manifest" href="{{ url_for('web_manifest') }}">
+    <link rel="icon" href="{{ url_for('brand_logo') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('brand_logo') }}">
     <link rel="stylesheet"
           href="{{ url_for('stylesheet') }}">
+    <script src="{{ url_for('app_script') }}" defer></script>
 </head>
 <body>
     {% set current_endpoint = request.endpoint %}
     <div class="app-shell">
         <aside class="sidebar">
             <a class="brand" href="{{ url_for('dashboard') }}">
-                <span class="brand-mark">n</span>
+                <img class="brand-mark" src="{{ url_for('brand_logo') }}" alt="">
                 <span>
                     <span class="brand-name">Nutrix</span>
                     <span class="brand-caption">Care management</span>
@@ -65,10 +71,6 @@
                 {% if current_user %}
                     <strong>{{ current_user.name }}</strong>
                     <span>{{ current_user.email }}</span>
-                    <form method="POST" action="{{ url_for('logout') }}">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                        <button type="submit" class="sidebar-signout">Sign out</button>
-                    </form>
                 {% else %}
                     <strong>Care, connected.</strong>
                     <span>Find care and keep every detail in one secure place.</span>
@@ -79,9 +81,19 @@
         <div class="workspace">
             <div class="topbar">
                 <span class="topbar-label">Workspace <strong>/ {% block breadcrumb %}Overview{% endblock %}</strong></span>
-                <span class="topbar-status"><span class="status-dot"></span>
-                    {% if current_user %}{{ current_user.role|title }} account{% else %}Care workspace{% endif %}
-                </span>
+                <div class="topbar-actions">
+                    <span class="topbar-status"><span class="status-dot"></span>
+                        {% if current_user %}{{ current_user.role|title }} account{% else %}Care workspace{% endif %}
+                    </span>
+                    <button type="button" class="install-app-button" id="install-app" hidden>Install app</button>
+                    <span class="install-app-status" id="install-app-status" role="status" aria-live="polite"></span>
+                    {% if current_user %}
+                        <form method="POST" action="{{ url_for('logout') }}" class="topbar-signout">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <button type="submit">Sign out</button>
+                        </form>
+                    {% endif %}
+                </div>
             </div>
 
             <main>
