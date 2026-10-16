@@ -195,6 +195,8 @@ def initialize_database():
                 caregiver_id INTEGER NOT NULL,
                 date TEXT NOT NULL,
                 time TEXT NOT NULL,
+                visit_location TEXT NOT NULL DEFAULT '',
+                health_description TEXT NOT NULL DEFAULT '',
                 status TEXT DEFAULT 'Pending',
                 FOREIGN KEY(patient_id) REFERENCES patients(id),
                 FOREIGN KEY(caregiver_id) REFERENCES caregivers(id)
@@ -230,6 +232,10 @@ def initialize_database():
         ensure_column(db, "caregivers", "city", "TEXT")
         ensure_column(db, "caregivers", "bio", "TEXT")
         ensure_column(db, "caregivers", "license_number", "TEXT")
+        ensure_column(db, "bookings", "visit_location", "TEXT NOT NULL DEFAULT ''")
+        ensure_column(
+            db, "bookings", "health_description", "TEXT NOT NULL DEFAULT ''"
+        )
         db.execute(
             "CREATE INDEX IF NOT EXISTS idx_care_requests_patient "
             "ON care_requests(patient_id)"
@@ -791,8 +797,17 @@ def request_booking(caregiver_id):
         return redirect(url_for("patient_dashboard"))
     date = request.form.get("date", "")
     time = request.form.get("time", "")
-    if not date or not time:
-        flash("Choose an appointment date and time.", "error")
+    visit_location = request.form.get("visit_location", "").strip()
+    health_description = request.form.get("health_description", "").strip()
+    if (
+        not date
+        or not time
+        or not visit_location
+        or len(visit_location) > 300
+        or not health_description
+        or len(health_description) > 1000
+    ):
+        flash("Please complete all booking fields.", "error")
         return redirect(url_for("patient_dashboard"))
     with get_db() as db:
         patient = profile_for_user(db, g.user)
@@ -806,9 +821,16 @@ def request_booking(caregiver_id):
         if caregiver is None:
             abort(404)
         db.execute(
-            "INSERT INTO bookings (patient_id, caregiver_id, date, time) "
-            "VALUES (?, ?, ?, ?)",
-            (patient["id"], caregiver_id, date, time),
+            "INSERT INTO bookings (patient_id, caregiver_id, date, time, "
+            "visit_location, health_description) VALUES (?, ?, ?, ?, ?, ?)",
+            (
+                patient["id"],
+                caregiver_id,
+                date,
+                time,
+                visit_location,
+                health_description,
+            ),
         )
     flash("Booking request sent to the caregiver.")
     return redirect(url_for("patient_dashboard"))

@@ -888,7 +888,7 @@ textarea:focus-visible {
 
 .booking-fields {
     display: grid;
-    grid-template-columns: 1fr .75fr auto;
+    grid-template-columns: 1fr 1fr;
     gap: 6px;
 }
 
@@ -898,7 +898,7 @@ textarea:focus-visible {
     font-size: 11px;
 }
 
-.booking-fields button {
+.booking-request-form > button {
     min-height: 38px;
     margin: 0;
     padding: 0 10px;
@@ -1086,6 +1086,13 @@ button:hover {
     transform: translateY(-1px);
     background: var(--teal-dark);
     box-shadow: 0 5px 12px rgba(8, 127, 114, .16);
+}
+
+button:disabled {
+    cursor: wait;
+    opacity: .65;
+    transform: none;
+    box-shadow: none;
 }
 
 .table-wrapper {
@@ -1362,9 +1369,5 @@ footer p {
 
     .booking-fields {
         grid-template-columns: 1fr 1fr;
-    }
-
-    .booking-fields button {
-        grid-column: 1 / -1;
     }
 }

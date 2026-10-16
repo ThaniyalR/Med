@@ -155,6 +155,20 @@ languageSelect.addEventListener("change", () => {
   applyLanguage(languageSelect.value);
 });
 
+document.querySelectorAll("form[data-single-submit]").forEach((form) => {
+  form.addEventListener("submit", (event) => {
+    if (form.dataset.submitting === "true") {
+      event.preventDefault();
+      return;
+    }
+
+    form.dataset.submitting = "true";
+    form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach((button) => {
+      button.disabled = true;
+    });
+  });
+});
+
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/service-worker.js").catch((error) => {
     console.error("Nutrix service worker registration failed.", error);

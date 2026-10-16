@@ -85,12 +85,13 @@
     {% if bookings %}
     <div class="table-wrapper">
         <table>
-            <thead><tr><th>Patient</th><th>Date</th><th>Time</th><th>Status</th><th>Update</th></tr></thead>
+            <thead><tr><th>Patient</th><th>Date</th><th>Time</th><th>Visit location</th><th>Health issue / care needed</th><th>Status</th><th>Update</th></tr></thead>
             <tbody>
             {% for booking in bookings %}
             <tr>
                 <td data-user-content>{{ booking.patient_name }}</td><td data-user-content>{{ booking.date }}</td>
-                <td data-user-content>{{ booking.time }}</td><td>{{ booking.status }}</td>
+                <td data-user-content>{{ booking.time }}</td>
+                <td data-user-content>{{ booking.visit_location or '—' }}</td><td data-user-content>{{ booking.health_description or '—' }}</td><td>{{ booking.status }}</td>
                 <td>
                     {% if booking.status == 'Pending' %}
                     <div class="inline-actions">

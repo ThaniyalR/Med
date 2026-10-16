@@ -61,6 +61,8 @@
                 <th>Caregiver</th>
                 <th>Date</th>
                 <th>Time</th>
+                <th>Visit location</th>
+                <th>Health issue / care needed</th>
                 <th>Status</th>
                 <th>Update</th>
             </tr>
@@ -71,6 +73,8 @@
                 <td data-user-content>{{ booking.caregiver_name }} ({{ booking.caregiver_role }})</td>
                 <td data-user-content>{{ booking.date }}</td>
                 <td data-user-content>{{ booking.time }}</td>
+                <td data-user-content>{{ booking.visit_location or '—' }}</td>
+                <td data-user-content>{{ booking.health_description or '—' }}</td>
                 <td>{{ booking.status }}</td>
                 <td>
                     <form method="POST"

@@ -101,14 +101,18 @@
                 <p>{% if caregiver.bio %}<span data-user-content>{{ caregiver.bio }}</span>{% else %}Experienced care professional.{% endif %}</p>
                 <div class="provider-meta"><span data-user-content>{{ caregiver.experience }}</span> years experience</div>
                 {% if current_user.verification_status == 'approved' %}
-                <form method="POST" action="{{ url_for('request_booking', caregiver_id=caregiver.id) }}" class="booking-request-form">
+                <form method="POST" action="{{ url_for('request_booking', caregiver_id=caregiver.id) }}" class="booking-request-form" data-single-submit>
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <label for="date-{{ caregiver.id }}">Request a visit</label>
                     <div class="booking-fields">
                         <input id="date-{{ caregiver.id }}" type="date" name="date" required>
-                        <input type="time" name="time" aria-label="Appointment time" required>
-                        <button type="submit">Request</button>
+                        <input id="time-{{ caregiver.id }}" type="time" name="time" aria-label="Appointment time" required>
                     </div>
+                    <label for="visit-location-{{ caregiver.id }}">Visit location *</label>
+                    <input id="visit-location-{{ caregiver.id }}" type="text" name="visit_location" maxlength="300" autocomplete="street-address" placeholder="Enter the address for the visit" required>
+                    <label for="health-description-{{ caregiver.id }}">Briefly describe the health issue or care needed *</label>
+                    <textarea id="health-description-{{ caregiver.id }}" name="health_description" maxlength="1000" required placeholder="Share a brief description to help the caregiver prepare"></textarea>
+                    <button type="submit">Request booking</button>
                 </form>
                 {% endif %}
             </article>
@@ -124,12 +128,13 @@
     {% if bookings %}
     <div class="table-wrapper">
         <table>
-            <thead><tr><th>Caregiver</th><th>Profession</th><th>Date</th><th>Time</th><th>Status</th><th>Action</th></tr></thead>
+            <thead><tr><th>Caregiver</th><th>Profession</th><th>Date</th><th>Time</th><th>Visit location</th><th>Health issue / care needed</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
             {% for booking in bookings %}
             <tr>
                 <td data-user-content>{{ booking.caregiver_name }}</td><td data-user-content>{{ booking.caregiver_role }}</td>
-                <td data-user-content>{{ booking.date }}</td><td data-user-content>{{ booking.time }}</td><td>{{ booking.status }}</td>
+                <td data-user-content>{{ booking.date }}</td><td data-user-content>{{ booking.time }}</td>
+                <td data-user-content>{{ booking.visit_location or '—' }}</td><td data-user-content>{{ booking.health_description or '—' }}</td><td>{{ booking.status }}</td>
                 <td>
                     {% if booking.status in ['Pending', 'Confirmed'] %}
                     <form method="POST" action="{{ url_for('update_my_booking', booking_id=booking.id) }}">
