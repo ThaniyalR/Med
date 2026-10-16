@@ -163,7 +163,10 @@ document.querySelectorAll("form[data-single-submit]").forEach((form) => {
     }
 
     form.dataset.submitting = "true";
-    form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach((button) => {
+    const submitButtons = form.querySelectorAll(
+      'button[type="submit"], button:not([type]), input[type="submit"]'
+    );
+    submitButtons.forEach((button) => {
       button.disabled = true;
     });
   });

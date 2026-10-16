@@ -15,7 +15,7 @@
     <h3>Book a caregiver</h3>
 
     {% if patients and caregivers %}
-    <form method="POST">
+    <form method="POST" data-single-submit>
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <label>Select patient *</label>
         <select name="patient_id" required>
