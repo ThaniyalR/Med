@@ -1099,6 +1099,15 @@ button:disabled {
     overflow-x: auto;
 }
 
+.booking-selection-checkbox {
+    width: 18px;
+    min-height: 18px;
+    margin: 0;
+    padding: 0;
+    accent-color: var(--teal);
+    vertical-align: middle;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;

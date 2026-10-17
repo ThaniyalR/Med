@@ -124,7 +124,7 @@ function applyLanguage(language) {
   document.querySelectorAll("[placeholder], [aria-label], [title]").forEach((element) => {
     if (!originalAttributes.has(element)) {
       const attributes = {};
-      for (const attribute of ["placeholder", "aria-label", "title"]) {
+      for (const attribute of ["placeholder", "aria-label", "title", "data-confirm"]) {
         if (element.hasAttribute(attribute)) {
           attributes[attribute] = element.getAttribute(attribute);
         }
@@ -169,6 +169,35 @@ document.querySelectorAll("form[data-single-submit]").forEach((form) => {
     submitButtons.forEach((button) => {
       button.disabled = true;
     });
+  });
+});
+
+document.querySelectorAll("form[data-confirm]").forEach((form) => {
+  form.addEventListener("submit", (event) => {
+    if (!window.confirm(form.dataset.confirm)) {
+      event.preventDefault();
+    }
+  });
+});
+
+document.querySelectorAll("[data-select-all]").forEach((selectAll) => {
+  const checkboxes = document.querySelectorAll(
+    `[data-selection-group="${selectAll.dataset.selectAll}"]`
+  );
+  const updateSelectAll = () => {
+    const checkedCount = [...checkboxes].filter((checkbox) => checkbox.checked).length;
+    selectAll.checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
+    selectAll.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+  };
+
+  selectAll.addEventListener("change", () => {
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = selectAll.checked;
+    });
+    updateSelectAll();
+  });
+  checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener("change", updateSelectAll);
   });
 });
 

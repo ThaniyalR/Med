@@ -83,12 +83,28 @@
 <section class="panel">
     <div class="section-heading"><h2>Your appointments</h2><span>{{ bookings|length }} total</span></div>
     {% if bookings %}
+    <form id="bulk-delete-bookings" method="POST"
+          action="{{ url_for('delete_bookings') }}"
+          data-confirm="Delete the selected bookings? This cannot be undone.">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button type="submit" class="button-danger">Delete selected</button>
+    </form>
     <div class="table-wrapper">
         <table>
-            <thead><tr><th>Patient</th><th>Date</th><th>Time</th><th>Visit location</th><th>Health issue / care needed</th><th>Status</th><th>Update</th></tr></thead>
+            <thead><tr>
+                <th><input type="checkbox" class="booking-selection-checkbox"
+                           data-select-all="caregiver-bookings" aria-label="Select all bookings"></th>
+                <th>Patient</th><th>Date</th><th>Time</th><th>Visit location</th>
+                <th>Health issue / care needed</th><th>Status</th><th>Update</th>
+            </tr></thead>
             <tbody>
             {% for booking in bookings %}
             <tr>
+                <td><input type="checkbox" class="booking-selection-checkbox"
+                           name="booking_ids" value="{{ booking.id }}"
+                           form="bulk-delete-bookings"
+                           data-selection-group="caregiver-bookings"
+                           aria-label="Select booking"></td>
                 <td data-user-content>{{ booking.patient_name }}</td><td data-user-content>{{ booking.date }}</td>
                 <td data-user-content>{{ booking.time }}</td>
                 <td data-user-content>{{ booking.visit_location or '—' }}</td><td data-user-content>{{ booking.health_description or '—' }}</td><td>{{ booking.status }}</td>

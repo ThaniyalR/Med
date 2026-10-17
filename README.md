@@ -43,7 +43,8 @@ The Vercel deployment serves `public/style.css` as a static asset. Vercel deploy
 
 - Patients and care professionals register separately and submit an identity or professional credential document.
 - Administrators sign in and use **Verification review** to download documents and approve or reject accounts.
-- Patients can search available, approved caregivers and request appointments. Approved patients can also post care requests; approved caregivers see those requests without patient names or contact details.
+- Patients can search available, approved caregivers and request appointments, then cancel pending or confirmed appointments from their workspace. Approved patients can also post care requests; approved caregivers see those requests without patient names or contact details.
+- Caregivers can select and delete multiple bookings assigned to them, and administrators can select and delete multiple bookings from the bookings page.
 - Local uploads are kept in the non-public `private_credentials` folder. With Supabase configured, uploads go to the private bucket and only administrators can download them.
 
 ## Important

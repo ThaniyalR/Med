@@ -55,9 +55,17 @@
     <h3>Booking requests</h3>
 
     {% if bookings %}
+    <form id="bulk-delete-bookings" method="POST"
+          action="{{ url_for('delete_bookings') }}"
+          data-confirm="Delete the selected bookings? This cannot be undone.">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button type="submit" class="button-danger">Delete selected</button>
+    </form>
     <div class="table-wrapper">
         <table>
             <tr>
+                <th><input type="checkbox" class="booking-selection-checkbox"
+                           data-select-all="admin-bookings" aria-label="Select all bookings"></th>
                 <th>Patient</th>
                 <th>Caregiver</th>
                 <th>Date</th>
@@ -70,6 +78,11 @@
 
             {% for booking in bookings %}
             <tr>
+                <td><input type="checkbox" class="booking-selection-checkbox"
+                           name="booking_ids" value="{{ booking.id }}"
+                           form="bulk-delete-bookings"
+                           data-selection-group="admin-bookings"
+                           aria-label="Select booking"></td>
                 <td data-user-content>{{ booking.patient_name }}</td>
                 <td data-user-content>{{ booking.caregiver_name }} ({{ booking.caregiver_role }})</td>
                 <td data-user-content>{{ booking.date }}</td>

@@ -798,6 +798,44 @@ def update_my_booking(booking_id):
     return redirect(role_home(g.user["role"]))
 
 
+@app.route("/bookings/delete", methods=["POST"])
+@roles_required("caregiver", "admin")
+def delete_bookings():
+    raw_booking_ids = request.form.getlist("booking_ids")
+    if not raw_booking_ids or any(
+        not re.fullmatch(r"[1-9]\d{0,18}", booking_id)
+        or int(booking_id) > 9223372036854775807
+        for booking_id in raw_booking_ids
+    ):
+        flash("Select at least one valid booking to delete.", "error")
+        return redirect(role_home(g.user["role"]))
+    booking_ids = list(dict.fromkeys(int(booking_id) for booking_id in raw_booking_ids))
+    ownership_filter = ""
+    caregiver_id = None
+    with get_db() as db:
+        if g.user["role"] == "caregiver":
+            caregiver = profile_for_user(db, g.user)
+            if caregiver is None:
+                abort(404)
+            caregiver_id = caregiver["id"]
+            ownership_filter = " AND caregiver_id = ?"
+        deleted = 0
+        for start in range(0, len(booking_ids), 500):
+            booking_batch = booking_ids[start : start + 500]
+            placeholders = ", ".join("?" for _ in booking_batch)
+            parameters = list(booking_batch)
+            if caregiver_id is not None:
+                parameters.append(caregiver_id)
+            deleted += db.execute(
+                f"DELETE FROM bookings WHERE id IN ({placeholders}){ownership_filter}",
+                parameters,
+            ).rowcount
+        if deleted != len(booking_ids):
+            abort(404)
+    flash("Selected bookings deleted.")
+    return redirect(role_home(g.user["role"]))
+
+
 @app.route("/bookings/request/<int:caregiver_id>", methods=["POST"])
 @roles_required("patient")
 def request_booking(caregiver_id):
