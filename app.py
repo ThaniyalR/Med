@@ -34,6 +34,14 @@ from werkzeug.utils import secure_filename
 import psycopg
 
 BASE_DIR = Path(__file__).resolve().parent
+ENV_PATH = BASE_DIR / ".env"
+if ENV_PATH.is_file():
+    with open(ENV_PATH, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip())
 DB_PATH = BASE_DIR / "nutrix.db"
 CREDENTIALS_DIR = BASE_DIR / "private_credentials"
 ALLOWED_CREDENTIAL_EXTENSIONS = {".pdf", ".jpg", ".jpeg", ".png"}
