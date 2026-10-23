@@ -158,6 +158,8 @@ body.admin-portal {
 .admin-main { width: min(100%, 1440px); min-height: calc(100vh - 112px); margin: 0 auto; padding: 36px clamp(23px, 4vw, 54px) 48px; }
 .admin-footer { padding: 16px clamp(23px, 4vw, 54px); border-top: 1px solid var(--admin-line); color: #8a95a5; font-size: 10px; }
 .admin-footer span { padding: 0 4px; }
+.admin-footer a { color: var(--admin-accent); text-decoration: none; }
+.admin-footer a:hover { text-decoration: underline; }
 
 .admin-message { margin-bottom: 17px; padding: 12px 15px; border: 1px solid #c9e7dc; border-radius: 8px; background: #eff9f5; color: #286a54; font-size: 12px; }
 .admin-message.error { border-color: #f1cfca; background: #fff4f2; color: #9a4138; }

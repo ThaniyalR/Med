@@ -50,6 +50,47 @@ app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_SECURE"] = bool(os.environ.get("VERCEL"))
 
 
+def configured_origin(setting_name):
+    value = os.environ.get(setting_name, "").strip().rstrip("/")
+    if not value:
+        return None
+    parsed = urllib.parse.urlsplit(value)
+    if (
+        parsed.scheme not in {"http", "https"}
+        or not parsed.hostname
+        or parsed.username
+        or parsed.password
+        or parsed.path
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise RuntimeError(f"{setting_name} must be an HTTP(S) origin without a path.")
+    return value
+
+
+def admin_portal_url(endpoint, **values):
+    path = url_for(endpoint, **values)
+    origin = configured_origin("ADMIN_PORTAL_URL")
+    if not origin:
+        return path
+    return urllib.parse.urljoin(f"{origin}/", path.lstrip("/"))
+
+
+def is_admin_surface_path(path):
+    return (
+        path == "/admin"
+        or path.startswith(("/admin/", "/booking-status/"))
+        or path
+        in {
+            "/admin.css",
+            "/patients",
+            "/caregivers",
+            "/bookings",
+            "/logs",
+        }
+    )
+
+
 class DatabaseRow(dict):
     def __getitem__(self, key):
         if isinstance(key, int):
@@ -258,6 +299,31 @@ def initialize_database():
 
 @app.before_request
 def load_request_context():
+    admin_origin = configured_origin("ADMIN_PORTAL_URL")
+    if admin_origin:
+        admin_host = urllib.parse.urlsplit(admin_origin).netloc.lower()
+        if request.host.lower() == admin_host:
+            if request.path == "/":
+                return redirect(url_for("admin_login"))
+            if request.path == "/login":
+                return redirect(url_for("admin_login"))
+            if not is_admin_surface_path(request.path) and request.path not in {
+                "/brand-logo",
+                "/logout",
+            }:
+                app_origin = configured_origin("NUTRIX_APP_URL")
+                if not app_origin:
+                    abort(404)
+                target = urllib.parse.urljoin(
+                    f"{app_origin}/", request.full_path.lstrip("/")
+                )
+                return redirect(target.rstrip("?"))
+        elif is_admin_surface_path(request.path):
+            target = urllib.parse.urljoin(
+                f"{admin_origin}/", request.full_path.lstrip("/")
+            )
+            return redirect(target.rstrip("?"))
+
     global _database_initialized
     if not _database_initialized:
         with _database_initialization_lock:
@@ -485,7 +551,7 @@ def verify_registration_fields(email, password, name):
 
 def role_home(role):
     if role == "admin":
-        return url_for("admin_dashboard")
+        return admin_portal_url("admin_dashboard")
     if role == "patient":
         return url_for("patient_dashboard")
     return url_for("caregiver_dashboard")
@@ -496,6 +562,8 @@ def inject_template_context():
     return {
         "current_user": g.get("user"),
         "csrf_token": session.get("csrf_token", ""),
+        "admin_portal_url": admin_portal_url,
+        "nutrix_app_url": configured_origin("NUTRIX_APP_URL"),
     }
 
 
@@ -638,7 +706,7 @@ def login():
             ).fetchone()
         if user and check_password_hash(user["password_hash"], password):
             if user["role"] == "admin":
-                return redirect(url_for("admin_login"))
+                return redirect(admin_portal_url("admin_login"))
             session.clear()
             session["user_id"] = user["id"]
             session["csrf_token"] = secrets.token_urlsafe(32)
@@ -665,7 +733,7 @@ def admin_login():
             session.clear()
             session["user_id"] = user["id"]
             session["csrf_token"] = secrets.token_urlsafe(32)
-            return redirect(url_for("admin_dashboard"))
+            return redirect(admin_portal_url("admin_dashboard"))
         flash("Administrator email or password is incorrect.", "error")
     return render_template("admin_auth.html")
 
@@ -677,7 +745,7 @@ def logout():
     session.clear()
     flash("You have been signed out.")
     if admin_session:
-        return redirect(url_for("admin_login"))
+        return redirect(admin_portal_url("admin_login"))
     return redirect(url_for("dashboard"))
 
 

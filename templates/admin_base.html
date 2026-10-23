@@ -82,7 +82,12 @@
                 {% endwith %}
                 {% block content %}{% endblock %}
             </main>
-            <footer class="admin-footer">Nutrix Admin <span aria-hidden="true">&middot;</span> Internal management portal</footer>
+            <footer class="admin-footer">
+                Nutrix Admin <span aria-hidden="true">&middot;</span> Internal management portal
+                {% if nutrix_app_url %}
+                <span aria-hidden="true">&middot;</span> <a href="{{ nutrix_app_url }}">Open Nutrix care app</a>
+                {% endif %}
+            </footer>
         </div>
     </div>
     <script>

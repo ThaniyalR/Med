@@ -18,7 +18,7 @@
     {% set current_endpoint = request.endpoint %}
     <div class="app-shell">
         <aside class="sidebar">
-            <a class="brand" href="{{ url_for('admin_dashboard') if current_user and current_user.role == 'admin' else url_for('dashboard') }}">
+            <a class="brand" href="{{ admin_portal_url('admin_dashboard') if current_user and current_user.role == 'admin' else url_for('dashboard') }}">
                 <img class="brand-mark" src="{{ url_for('brand_logo') }}" alt="">
                 <span>
                     <span class="brand-name">Nutrix</span>
@@ -47,22 +47,22 @@
                         <span class="nav-icon" aria-hidden="true">&#9633;</span> Care workspace
                     </a>
                 {% else %}
-                    <a href="{{ url_for('admin_dashboard') }}" class="{% if current_endpoint == 'admin_dashboard' %}active{% endif %}">
+                    <a href="{{ admin_portal_url('admin_dashboard') }}" class="{% if current_endpoint == 'admin_dashboard' %}active{% endif %}">
                         <span class="nav-icon" aria-hidden="true">&#9633;</span> Admin dashboard
                     </a>
-                    <a href="{{ url_for('admin_verifications') }}" class="{% if current_endpoint in ['admin_verifications', 'review_verification'] %}active{% endif %}">
+                    <a href="{{ admin_portal_url('admin_verifications') }}" class="{% if current_endpoint in ['admin_verifications', 'review_verification'] %}active{% endif %}">
                         <span class="nav-icon" aria-hidden="true">&#10003;</span> Verification review
                     </a>
-                    <a href="{{ url_for('patients_page') }}" class="{% if current_endpoint == 'patients_page' %}active{% endif %}">
+                    <a href="{{ admin_portal_url('patients_page') }}" class="{% if current_endpoint == 'patients_page' %}active{% endif %}">
                         <span class="nav-icon" aria-hidden="true">&#9823;</span> Patients
                     </a>
-                    <a href="{{ url_for('caregivers_page') }}" class="{% if current_endpoint == 'caregivers_page' %}active{% endif %}">
+                    <a href="{{ admin_portal_url('caregivers_page') }}" class="{% if current_endpoint == 'caregivers_page' %}active{% endif %}">
                         <span class="nav-icon" aria-hidden="true">&#9822;</span> Caregivers
                     </a>
-                    <a href="{{ url_for('bookings_page') }}" class="{% if current_endpoint in ['bookings_page', 'booking_status'] %}active{% endif %}">
+                    <a href="{{ admin_portal_url('bookings_page') }}" class="{% if current_endpoint in ['bookings_page', 'booking_status'] %}active{% endif %}">
                         <span class="nav-icon" aria-hidden="true">&#128197;</span> Bookings
                     </a>
-                    <a href="{{ url_for('care_logs_page') }}" class="{% if current_endpoint == 'care_logs_page' %}active{% endif %}">
+                    <a href="{{ admin_portal_url('care_logs_page') }}" class="{% if current_endpoint == 'care_logs_page' %}active{% endif %}">
                         <span class="nav-icon" aria-hidden="true">&#9776;</span> Care Logs
                     </a>
                 {% endif %}
