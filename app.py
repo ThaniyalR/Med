@@ -1267,5 +1267,164 @@ def create_admin():
     click.echo(f"Admin account created for {email}.")
 
 
+@app.cli.command("migrate-local-sqlite")
+@click.option(
+    "--confirm",
+    is_flag=True,
+    help="Copy local SQLite records and referenced documents to Supabase.",
+)
+def migrate_local_sqlite(confirm):
+    """Copy this machine's demo data from SQLite to a fresh Supabase project."""
+    if not confirm:
+        raise click.ClickException(
+            "Review the target project, then rerun with --confirm to copy local data."
+        )
+    if not DB_PATH.is_file():
+        raise click.ClickException(f"Local database not found: {DB_PATH}")
+
+    database_url = click.prompt(
+        "Supabase transaction-pooler DATABASE_URL", hide_input=True
+    ).strip()
+    if not database_url.startswith(("postgres://", "postgresql://")):
+        raise click.ClickException("Enter a PostgreSQL connection URL.")
+
+    previous_database_url = os.environ.get("DATABASE_URL")
+    os.environ["DATABASE_URL"] = database_url
+    uploaded_documents = []
+    try:
+        source = sqlite3.connect(DB_PATH)
+        source.row_factory = sqlite3.Row
+        try:
+            tables = (
+                "users",
+                "patients",
+                "caregivers",
+                "bookings",
+                "care_logs",
+                "care_requests",
+            )
+            source_counts = {
+                table: source.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+                for table in tables
+            }
+            credential_paths = [
+                row["credential_path"]
+                for row in source.execute(
+                    "SELECT credential_path FROM users "
+                    "WHERE credential_path IS NOT NULL AND credential_path != ''"
+                ).fetchall()
+            ]
+        finally:
+            source.close()
+
+        initialize_database()
+        with get_db() as db:
+            if not db.postgres:
+                raise click.ClickException(
+                    "The destination must be a PostgreSQL Supabase database."
+                )
+            for table in tables:
+                if db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]:
+                    raise click.ClickException(
+                        f"Destination table {table} is not empty; refusing to merge records."
+                    )
+
+        if credential_paths:
+            supabase_url = click.prompt(
+                "Supabase project URL", default="https://tywizmbtixfzcyuizdgf.supabase.co"
+            ).strip()
+            service_role_key = click.prompt(
+                "Supabase server-side secret key", hide_input=True
+            ).strip()
+            os.environ["SUPABASE_URL"] = supabase_url
+            os.environ["SUPABASE_SERVICE_ROLE_KEY"] = service_role_key
+            os.environ.setdefault("SUPABASE_STORAGE_BUCKET", STORAGE_BUCKET)
+
+            for path in credential_paths:
+                if not re.fullmatch(r"[0-9a-f]{32}\.(pdf|jpg|jpeg|png)", path):
+                    raise click.ClickException(
+                        "A local verification document has an invalid stored path."
+                    )
+                local_path = (CREDENTIALS_DIR / path).resolve()
+                if local_path.parent != CREDENTIALS_DIR.resolve() or not local_path.is_file():
+                    raise click.ClickException(
+                        "A referenced local verification document is missing."
+                    )
+                storage_request(
+                    "POST",
+                    path,
+                    local_path.read_bytes(),
+                    content_type=mimetypes.guess_type(local_path.name)[0]
+                    or "application/octet-stream",
+                )
+                uploaded_documents.append(path)
+
+        with get_db() as db:
+            for table in tables:
+                source = sqlite3.connect(DB_PATH)
+                source.row_factory = sqlite3.Row
+                try:
+                    source_columns = {
+                        row["name"]
+                        for row in source.execute(f"PRAGMA table_info({table})")
+                    }
+                    destination_columns = {
+                        row["column_name"]
+                        for row in db.execute(
+                            "SELECT column_name FROM information_schema.columns "
+                            "WHERE table_schema = current_schema() AND table_name = ?",
+                            (table,),
+                        ).fetchall()
+                    }
+                    columns = sorted(source_columns & destination_columns)
+                    if "id" not in columns:
+                        raise click.ClickException(
+                            f"Could not find the id column for {table}."
+                        )
+                    column_list = ", ".join(columns)
+                    placeholders = ", ".join("?" for _ in columns)
+                    rows = source.execute(
+                        f"SELECT {column_list} FROM {table} ORDER BY id"
+                    ).fetchall()
+                    for row in rows:
+                        db.execute(
+                            f"INSERT INTO {table} ({column_list}) "
+                            f"VALUES ({placeholders}) ON CONFLICT (id) DO NOTHING",
+                            tuple(row),
+                        )
+                finally:
+                    source.close()
+
+                db.execute(
+                    "SELECT setval(pg_get_serial_sequence(?, 'id'), "
+                    "COALESCE(MAX(id), 1), COUNT(*) > 0) "
+                    f"FROM {table}",
+                    (table,),
+                )
+                click.echo(f"{table}: copied {source_counts[table]} records")
+    except (sqlite3.Error, psycopg.Error, OSError, RuntimeError, ValueError) as error:
+        cleanup_errors = []
+        for path in uploaded_documents:
+            try:
+                delete_credential(path)
+            except (RuntimeError, OSError, ValueError) as cleanup_error:
+                cleanup_errors.append(cleanup_error)
+        if cleanup_errors:
+            raise click.ClickException(
+                "Data migration failed, and one or more uploaded documents could "
+                f"not be removed ({len(cleanup_errors)} cleanup error(s))."
+            ) from error
+        raise click.ClickException(
+            "Data migration failed; the local SQLite database was left unchanged."
+        ) from error
+    finally:
+        if previous_database_url is None:
+            os.environ.pop("DATABASE_URL", None)
+        else:
+            os.environ["DATABASE_URL"] = previous_database_url
+
+    click.echo("Migration complete. The local SQLite database was not modified.")
+
+
 if __name__ == "__main__":
     app.run(debug=True)
