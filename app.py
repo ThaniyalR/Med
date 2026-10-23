@@ -318,7 +318,7 @@ def stylesheet():
     return send_from_directory(BASE_DIR / "public", "style.css")
 
 
-@app.route("/admin/style.css")
+@app.route("/admin.css")
 def admin_stylesheet():
     return send_from_directory(BASE_DIR / "public", "admin.css")
 
