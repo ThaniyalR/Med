@@ -42,7 +42,7 @@ The Vercel deployment serves `public/style.css` as a static asset. Vercel deploy
 ## Account flow
 
 - Patients and care professionals register separately and submit an identity or professional credential document.
-- Administrators sign in and use **Verification review** to download documents and approve or reject accounts.
+- Administrators use the separate admin portal at `/admin/login` and its standalone workspace at `/admin`. The portal has its own layout and styling, and manages patients, caregivers, bookings, care logs, and account verifications. Use **Verifications** to download documents and approve or reject accounts.
 - Patients can search available, approved caregivers and request appointments, then cancel pending or confirmed appointments from their workspace. Approved patients can also post care requests; approved caregivers see those requests without patient names or contact details.
 - Caregivers can select and delete multiple bookings assigned to them, and administrators can select and delete multiple bookings from the bookings page.
 - Local uploads are kept in the non-public `private_credentials` folder. With Supabase configured, uploads go to the private bucket and only administrators can download them.

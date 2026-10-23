@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#101c2e">
+    <meta name="description" content="Nutrix administrator portal.">
+    <title>{% block title %}Nutrix Admin{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('admin_stylesheet') }}">
+</head>
+<body class="admin-portal">
+    {% set current_endpoint = request.endpoint %}
+    <div class="admin-shell">
+        <aside class="admin-sidebar">
+            <a class="admin-brand" href="{{ url_for('admin_dashboard') if current_user and current_user.role == 'admin' else url_for('admin_login') }}">
+                <img class="admin-brand-logo" src="{{ url_for('brand_logo') }}" alt="Nutrix">
+                <span class="admin-brand-caption">ADMIN PORTAL</span>
+            </a>
+
+            {% if current_user and current_user.role == 'admin' %}
+            <span class="admin-nav-label">ADMINISTRATION</span>
+            <nav class="admin-nav" aria-label="Admin navigation">
+                <a href="{{ url_for('admin_dashboard') }}" class="{% if current_endpoint == 'admin_dashboard' %}active{% endif %}">
+                    <span aria-hidden="true">&#9633;</span> Overview
+                </a>
+                <a href="{{ url_for('admin_verifications') }}" class="{% if current_endpoint in ['admin_verifications', 'review_verification'] %}active{% endif %}">
+                    <span aria-hidden="true">&#10003;</span> Verifications
+                </a>
+                <a href="{{ url_for('patients_page') }}" class="{% if current_endpoint == 'patients_page' %}active{% endif %}">
+                    <span aria-hidden="true">&#9823;</span> Patients
+                </a>
+                <a href="{{ url_for('caregivers_page') }}" class="{% if current_endpoint == 'caregivers_page' %}active{% endif %}">
+                    <span aria-hidden="true">&#9822;</span> Care team
+                </a>
+                <a href="{{ url_for('bookings_page') }}" class="{% if current_endpoint in ['bookings_page', 'booking_status', 'delete_bookings'] %}active{% endif %}">
+                    <span aria-hidden="true">&#128197;</span> Bookings
+                </a>
+                <a href="{{ url_for('care_logs_page') }}" class="{% if current_endpoint == 'care_logs_page' %}active{% endif %}">
+                    <span aria-hidden="true">&#9776;</span> Care logs
+                </a>
+            </nav>
+            <div class="admin-sidebar-user">
+                <span class="admin-avatar" aria-hidden="true">{{ current_user.name[:1]|upper }}</span>
+                <span><strong>{{ current_user.name }}</strong><small>Administrator</small></span>
+            </div>
+            {% else %}
+            <div class="admin-sidebar-message">
+                <span class="admin-nav-label">SECURE WORKSPACE</span>
+                <h2>Administration, kept separate.</h2>
+                <p>Sign in with your administrator account to manage the Nutrix care platform.</p>
+            </div>
+            {% endif %}
+        </aside>
+
+        <div class="admin-workspace">
+            <header class="admin-topbar">
+                <div class="admin-breadcrumb">
+                    <span>Admin portal</span>
+                    {% if current_user and current_user.role == 'admin' %}
+                    <strong><span aria-hidden="true">/</span> {% block breadcrumb %}Overview{% endblock %}</strong>
+                    {% else %}
+                    <strong><span aria-hidden="true">/</span> Secure sign in</strong>
+                    {% endif %}
+                </div>
+                {% if current_user and current_user.role == 'admin' %}
+                <form method="POST" action="{{ url_for('logout') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button class="admin-signout" type="submit">Sign out <span aria-hidden="true">&#8599;</span></button>
+                </form>
+                {% else %}
+                <span class="admin-secure-label"><span aria-hidden="true">&#9679;</span> Private administrator access</span>
+                {% endif %}
+            </header>
+
+            <main class="admin-main">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="admin-message {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                {% block content %}{% endblock %}
+            </main>
+            <footer class="admin-footer">Nutrix Admin <span aria-hidden="true">&middot;</span> Internal management portal</footer>
+        </div>
+    </div>
+    <script>
+        document.querySelectorAll("form[data-confirm]").forEach((form) => {
+            form.addEventListener("submit", (event) => {
+                if (!window.confirm(form.dataset.confirm)) event.preventDefault();
+            });
+        });
+        document.querySelectorAll("[data-select-all]").forEach((master) => {
+            const boxes = document.querySelectorAll(
+                `[data-selection-group="${master.dataset.selectAll}"]`
+            );
+            const updateMaster = () => {
+                const selected = [...boxes].filter((box) => box.checked).length;
+                master.checked = boxes.length > 0 && selected === boxes.length;
+                master.indeterminate = selected > 0 && selected < boxes.length;
+            };
+            master.addEventListener("change", () => {
+                boxes.forEach((box) => { box.checked = master.checked; });
+                updateMaster();
+            });
+            boxes.forEach((box) => box.addEventListener("change", updateMaster));
+        });
+    </script>
+</body>
+</html>

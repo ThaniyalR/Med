@@ -318,6 +318,11 @@ def stylesheet():
     return send_from_directory(BASE_DIR / "public", "style.css")
 
 
+@app.route("/admin/style.css")
+def admin_stylesheet():
+    return send_from_directory(BASE_DIR / "public", "admin.css")
+
+
 @app.route("/manifest.webmanifest")
 def web_manifest():
     return send_from_directory(
@@ -480,7 +485,7 @@ def verify_registration_fields(email, password, name):
 
 def role_home(role):
     if role == "admin":
-        return url_for("dashboard")
+        return url_for("admin_dashboard")
     if role == "patient":
         return url_for("patient_dashboard")
     return url_for("caregiver_dashboard")
@@ -502,6 +507,12 @@ def dashboard():
         return redirect(url_for("patient_dashboard"))
     if g.user["role"] == "caregiver":
         return redirect(url_for("caregiver_dashboard"))
+    return redirect(url_for("admin_dashboard"))
+
+
+@app.route("/admin")
+@roles_required("admin")
+def admin_dashboard():
     with get_db() as db:
         patients = db.execute("SELECT COUNT(*) FROM patients").fetchone()[0]
         caregivers = db.execute("SELECT COUNT(*) FROM caregivers").fetchone()[0]
@@ -514,7 +525,7 @@ def dashboard():
             "AND verification_status = 'pending'"
         ).fetchone()[0]
     return render_template(
-        "dashboard.html",
+        "admin_dashboard.html",
         patients=patients,
         caregivers=caregivers,
         bookings=bookings,
@@ -626,6 +637,8 @@ def login():
                 (email,),
             ).fetchone()
         if user and check_password_hash(user["password_hash"], password):
+            if user["role"] == "admin":
+                return redirect(url_for("admin_login"))
             session.clear()
             session["user_id"] = user["id"]
             session["csrf_token"] = secrets.token_urlsafe(32)
@@ -634,11 +647,37 @@ def login():
     return render_template("auth.html")
 
 
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    if g.user is not None:
+        return redirect(role_home(g.user["role"]))
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        with get_db() as db:
+            user = db.execute(
+                "SELECT id, email, password_hash, role FROM users WHERE email = ?",
+                (email,),
+            ).fetchone()
+        if user and user["role"] == "admin" and check_password_hash(
+            user["password_hash"], password
+        ):
+            session.clear()
+            session["user_id"] = user["id"]
+            session["csrf_token"] = secrets.token_urlsafe(32)
+            return redirect(url_for("admin_dashboard"))
+        flash("Administrator email or password is incorrect.", "error")
+    return render_template("admin_auth.html")
+
+
 @app.route("/logout", methods=["POST"])
 @roles_required("patient", "caregiver", "admin")
 def logout():
+    admin_session = g.user["role"] == "admin"
     session.clear()
     flash("You have been signed out.")
+    if admin_session:
+        return redirect(url_for("admin_login"))
     return redirect(url_for("dashboard"))
 
 

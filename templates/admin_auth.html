@@ -1,0 +1,22 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Admin sign in | Nutrix{% endblock %}
+
+{% block content %}
+<section class="admin-login-wrap">
+    <div class="admin-login-card">
+        <span class="admin-eyebrow">NUTRIX ADMINISTRATOR</span>
+        <h1>Welcome back.</h1>
+        <p>Sign in to access your secure administration workspace.</p>
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label for="email">Administrator email</label>
+            <input id="email" type="email" name="email" autocomplete="username" required>
+            <label for="password">Password</label>
+            <input id="password" type="password" name="password" autocomplete="current-password" required>
+            <button type="submit">Sign in to admin <span aria-hidden="true">&#8594;</span></button>
+        </form>
+        <div class="admin-login-security"><span aria-hidden="true">&#128274;</span> This portal is restricted to administrators.</div>
+    </div>
+</section>
+{% endblock %}

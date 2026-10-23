@@ -1,15 +1,15 @@
-{% extends "base.html" %}
+{% extends "admin_base.html" %}
 
-{% block title %}Dashboard | Nutrix{% endblock %}
+{% block title %}Admin dashboard | Nutrix{% endblock %}
 
-{% block breadcrumb %}Dashboard{% endblock %}
+{% block breadcrumb %}Admin dashboard{% endblock %}
 
 {% block content %}
 <section class="hero">
     <div class="hero-content">
-        <span class="eyebrow">Your care workspace</span>
-        <h1>Good care starts with a clear picture.</h1>
-        <p>Manage patient records, coordinate caregivers and keep every care visit moving forward.</p>
+        <span class="eyebrow">Administrator workspace</span>
+        <h1>Care operations at a glance.</h1>
+        <p>Manage patients, caregivers, bookings and account verifications from one place.</p>
         <a class="button-link" href="{{ url_for('admin_verifications') }}">Review accounts <span aria-hidden="true">&nbsp;&rarr;</span></a>
     </div>
 </section>
